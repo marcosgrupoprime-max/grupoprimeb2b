@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta de Envios | Grupo Prime B2B</title>
+
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23019FF7%22/><text y=%22.9em%22 x=%2250%%22 text-anchor=%22middle%22 font-family=%22Inter, sans-serif%22 font-weight=%22800%22 font-size=%2270%22 fill=%22white%22>P</text></svg>">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="main-layout">
+        <div class="step-container">
+            <div class="step-label">PASSO 1</div>
+            <div class="container main-card">
+                <div class="header-section">
+                    <h1>Consultar dados do meu pedido</h1>
+                </div>
+                <p class="step-instruction">Digite o número da sua ordem de compra ou o número do pedido.</p>
+
+                <div class="search-box">
+                    <label class="sr-only" for="numeroBusca">Número da ordem ou pedido</label>
+                    <input type="text" id="numeroBusca" placeholder="Ex: Pedido 19767 ou OC 4508924942" autocomplete="off">
+                    <button class="btn-primary" id="btnBuscar" type="button">Buscar informações</button>
+                </div>
+
+                <div id="resultados" class="resultados" aria-live="polite"></div>
+            </div>
+        </div>
+
+        <div class="step-container">
+            <div class="step-label">PASSO 2</div>
+            <div class="container side-card">
+                <div class="header-section">
+                    <h1>Rastrear no site da Transportadora</h1>
+                </div>
+                <p class="step-instruction">O sistema seleciona a transportadora automaticamente conforme o seu pedido, mas você pode alterá-la se necessário.</p>
+
+                <div class="tracking-action-row">
+                    <label class="sr-only" for="transportadora">Transportadora</label>
+                    <select id="transportadora">
+                        <option value="https://rastreamento.correios.com.br/app/index.php">Correios</option>
+                        <option value="https://www.formatotransportes.com.br/">Formato Transportes</option>
+                        <option value="https://ssw.inf.br/2/rastreamento">Ideale Cargas (SSW)</option>
+                        <option value="https://ssw.inf.br/2/rastreamento">Mandala Transportes (SSW)</option>
+                        <option value="https://ssw.inf.br/2/rastreamento">MirindoSUL Transportes (SSW)</option>
+                        <option value="https://ssw.inf.br/2/rastreamento">Todo Brasil (SSW)</option>
+                        <option value="https://rapidofigueiredo.com.br/rastreamento/">Rápido Figueiredo</option>
+                        <option value="https://www.freteclick.com.br/rastreamento">Frete Click</option>
+                        <option value="https://rodonaves.com.br/rastreio-de-mercadoria?protocolo=&rastreiemercadoria=1&gad_campaignid=22199396591">Rodonaves</option>
+                        <option value="https://tracken.app.br/tracken/rastreio">J3 Flex (Motoboy)</option>
+                        <option value="https://apps.tadex.com.br/Publica/Rastreamento/Remetente">Tadex</option>
+                    </select>
+                    <button class="btn-secondary" id="btnRastreio" type="button">Rastreamento completo</button>
+                </div>
+
+                <div class="resultados" aria-live="polite"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="main-footer">
+        <a href="https://grupoprimeb2b.com.br/Signemails/TUTORIAL%20PARA%20RASTREIO%20DE%20PEDIDOS%20PDF.pdf" target="_blank" class="tutorial-btn-small">
+            Problemas para rastrear? <strong>Baixe nosso tutorial</strong>
+        </a>
+        <a href="https://grupoprimeb2b.com.br/">
+            <img src="https://iili.io/K9WdnCG.md.png" alt="Logo Grupo Prime B2B">
+        </a>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
