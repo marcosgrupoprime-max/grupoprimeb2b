@@ -26,7 +26,7 @@
     { "nome": "Braspress", "categoria": "SITEPROPPIO", "url": "https://www.braspress.com/" },
     { "nome": "Correios", "categoria": "CORREIOS" },
     { "nome": "Fedex TNT", "categoria": "SITEPROPPIO", "url": "https://www.tnt.com/express/pt_br/site/home.html" },
-    { "nome": "FGD Transportes", "categoria": "SITEPROPPIO", "url": "https://www.fgdtransportes.com.br/" },
+    { "nome": "FGD Transportes", "categoria": "SSW" },
     { "nome": "Formato Transportes", "categoria": "FORMATO" },
     { "nome": "FreteClick", "categoria": "FRETECLICK" },
     { "nome": "Ideale Cargas", "categoria": "SSW" },
@@ -49,7 +49,7 @@
     { "nome": "Rodoilha", "categoria": "SITEPROPPIO", "url": "https://www.rodoilha.com.br/" },
     { "nome": "Rodonaves", "categoria": "SITEPROPPIO", "url": "https://rodonaves.com.br/rastreio-de-mercadoria?protocolo=&rastreiemercadoria=1" },
     { "nome": "Tadex", "categoria": "SITEPROPPIO", "url": "https://apps.tadex.com.br/Publica/Rastreamento/Remetente" },
-    { "nome": "Thiga Transportes", "categoria": "SITEPROPPIO", "url": "https://www.thigatransportes.com.br/" },
+    { "nome": "Thiga Transportes", "categoria": "SSW" },
     { "nome": "Todo Brasil", "categoria": "SSW" },
     { "nome": "TransWells", "categoria": "SSW" }
   ]
