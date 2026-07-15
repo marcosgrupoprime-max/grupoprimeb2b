@@ -303,7 +303,7 @@ input[type="text"]::placeholder { color: #94a3b8; font-style: italic; font-size:
     gap: 6px;
     margin-top: 14px;
     padding: 11px 16px;
-    background: var(--azul-rastrear);
+    background: var(--azul-buscar);
     color: #fff;
     font-size: 13px;
     font-weight: 700;
