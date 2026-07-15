@@ -141,6 +141,15 @@ function normalizarTexto(valor) {
     return String(valor ?? '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
 }
 
+function escapeHtml(valor) {
+    return String(valor ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 function delay(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -306,21 +315,21 @@ function renderizarResultados(resultados) {
         chips.forEach(([label, valor]) => {
             const chip = document.createElement('span');
             chip.className = 'data-chip';
-            chip.textContent = `${label}: ${valor}`;
+            chip.innerHTML = `${label}: <strong>${escapeHtml(valor)}</strong>`;
             linha2.appendChild(chip);
         });
 
         const linha3Transp = document.createElement('div');
         linha3Transp.className = 'line-3-transp';
-        linha3Transp.textContent = `Transportadora: ${res['TRANSPORTADORA']}`;
+        linha3Transp.innerHTML = `Transportadora: <strong>${escapeHtml(res['TRANSPORTADORA'])}</strong>`;
 
         const linha3Dest = document.createElement('div');
         linha3Dest.className = 'line-3-dest';
-        linha3Dest.textContent = `Destino: ${res['CIDADE DESTINO']}`;
+        linha3Dest.innerHTML = `Destino: <strong>${escapeHtml(res['CIDADE DESTINO'])}</strong>`;
 
         const linha4 = document.createElement('div');
         linha4.className = 'line-4';
-        linha4.textContent = `Dados de rastreio: ${codigo}`;
+        linha4.innerHTML = `Dados de rastreio: <strong>${escapeHtml(codigo)}</strong>`;
 
         card.append(linha1, divider, linha2, linha3Transp, linha3Dest, linha4);
         resultadosDiv.appendChild(card);
