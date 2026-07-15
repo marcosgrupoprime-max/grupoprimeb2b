@@ -4,7 +4,7 @@ let carregamentoPromise = null;
 const MAX_TENTATIVAS = 3;
 const INTERVALO_ATUALIZACAO_MS = 10 * 60 * 1000;
 
-const MSG_NAO_ENCONTRADO = 'Pedido em preparação. Assim que for despachado, você receberá automaticamente um e-mail com as informações de rastreamento. Caso seja necessário, solicite nosso suporte, abrindo um ticket.';
+const MSG_NAO_ENCONTRADO = 'Pedido em preparação. Assim que for despachado, você receberá automaticamente um e-mail com as informações de rastreamento. Caso seja necessário, solicite nosso suporte, abrindo um <a href="https://grupoprimeb2b.com.br/ticket/" target="_blank" rel="noopener noreferrer" class="ticket-link">ticket</a>.';
 
 // Sistema de logs para diagnóstico
 const logs = [];
@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
         logIcon.id = 'btnLogs';
         logIcon.innerHTML = '🔍';
         logIcon.title = 'Ver logs de diagnóstico';
-        logIcon.style.cssText = 'background:none;border:none;font-size:16px;cursor:pointer;opacity:0.5;padding:5px;';
+        logIcon.style.cssText = 'background:none;border:none;font-size:12px;cursor:pointer;opacity:0.5;padding:2px;';
         logIcon.addEventListener('click', abrirModalLogs);
         footer.appendChild(logIcon);
     }
@@ -256,7 +256,7 @@ function renderizarResultados(resultados) {
     if (resultados.length === 0) {
         const mensagem = document.createElement('div');
         mensagem.className = 'error-msg';
-        mensagem.textContent = MSG_NAO_ENCONTRADO;
+        mensagem.innerHTML = MSG_NAO_ENCONTRADO;
         resultadosDiv.appendChild(mensagem);
         return;
     }
