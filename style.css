@@ -216,7 +216,7 @@ input[type="text"]::placeholder { color: #94a3b8; font-style: italic; font-size:
 }
 .divider { height: 1px; background: #f1f5f9; margin-bottom: 15px; }
 
-.line-2 { display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; }
+.line-2 { display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: nowrap; overflow-x: auto; }
 .data-chip {
     background: #f1f5f9;
     padding: 4px 10px;
