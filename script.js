@@ -1,19 +1,39 @@
 const CSV_URL_BASE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTcHCtfERtEop0Wzam17J0jOJLPPAon4bht0B55jnVcSBzid1c6eJoePUC2AAHcTOuVn8bujSfGaLic/pub?gid=972326270&single=true&output=csv';
 let dadosDoSistema = [];
 let carregamentoPromise = null;
-let ultimaAtualizacao = null;
-const CACHE_TTL_MS = 10 * 60 * 1000;
-const CACHE_STORAGE_KEY = 'gp_planilha_cache_v1';
 const MAX_TENTATIVAS = 3;
 const INTERVALO_ATUALIZACAO_MS = 10 * 60 * 1000;
-let avisoCacheAtivo = false;
 
 const MSG_NAO_ENCONTRADO = 'Pedido em preparação. Assim que for despachado, você receberá automaticamente um e-mail com as informações de rastreamento. Caso seja necessário, solicite nosso suporte, abrindo um ticket.';
+
+// Sistema de logs para diagnóstico
+const logs = [];
+function adicionarLog(tipo, mensagem) {
+    const timestamp = new Date().toLocaleTimeString();
+    logs.push({ tipo, mensagem, timestamp });
+    console.log(`[${tipo}] ${mensagem}`);
+}
+
+function obterLogs() {
+    return logs;
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     const inputBusca = document.getElementById('numeroBusca');
     const btnBuscar = document.getElementById('btnBuscar');
     const btnRastreio = document.getElementById('btnRastreio');
+
+    // Ícone de logs no rodapé
+    const footer = document.querySelector('.main-footer');
+    if (footer) {
+        const logIcon = document.createElement('button');
+        logIcon.id = 'btnLogs';
+        logIcon.innerHTML = '🔍';
+        logIcon.title = 'Ver logs de diagnóstico';
+        logIcon.style.cssText = 'background:none;border:none;font-size:16px;cursor:pointer;opacity:0.5;padding:5px;';
+        logIcon.addEventListener('click', abrirModalLogs);
+        footer.appendChild(logIcon);
+    }
 
     if (inputBusca) {
         inputBusca.addEventListener('keypress', (event) => {
@@ -33,40 +53,44 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     carregarDadosIniciais().catch((error) => {
-        console.error('Erro ao sincronizar dados:', error);
+        adicionarLog('ERRO', `Falha ao sincronizar dados: ${error.message}`);
     });
 
     setInterval(() => {
         carregarDadosIniciais(true)
             .then(() => {
-                avisoCacheAtivo = false;
-                removerAvisoCache();
+                adicionarLog('INFO', 'Atualização em segundo plano concluída');
             })
             .catch((error) => {
-                console.warn('Atualização em segundo plano falhou:', error);
+                adicionarLog('ERRO', `Atualização em segundo plano falhou: ${error.message}`);
             });
     }, INTERVALO_ATUALIZACAO_MS);
 });
 
-function exibirAvisoCache() {
-    const resultadosDiv = document.getElementById('resultados');
-    if (!resultadosDiv || avisoCacheAtivo) {
-        return;
-    }
-    avisoCacheAtivo = true;
-    const aviso = document.createElement('div');
-    aviso.id = 'avisoCache';
-    aviso.className = 'cache-warning';
-    aviso.textContent = 'Exibindo dados da última sincronização bem-sucedida. Podem estar desatualizados.';
-    resultadosDiv.prepend(aviso);
-}
-
-function removerAvisoCache() {
-    const aviso = document.getElementById('avisoCache');
-    if (aviso) {
-        aviso.remove();
-    }
-    avisoCacheAtivo = false;
+function abrirModalLogs() {
+    const modal = document.createElement('div');
+    modal.id = 'modalLogs';
+    modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+    
+    const content = document.createElement('div');
+    content.style.cssText = 'background:white;border-radius:8px;max-width:600px;width:100%;max-height:80vh;overflow:auto;padding:20px;';
+    
+    const titulo = document.createElement('h3');
+    titulo.textContent = 'Logs de Diagnóstico';
+    titulo.style.marginTop = '0';
+    
+    const lista = document.createElement('pre');
+    lista.style.cssText = 'font-size:11px;text-align:left;white-space:pre-wrap;word-break:break-all;';
+    lista.textContent = logs.map(l => `[${l.timestamp}] ${l.tipo}: ${l.mensagem}`).join('\n') || 'Nenhum log registrado';
+    
+    const fechar = document.createElement('button');
+    fechar.textContent = 'Fechar';
+    fechar.style.cssText = 'margin-top:15px;padding:8px 16px;';
+    fechar.onclick = () => modal.remove();
+    
+    content.append(titulo, lista, fechar);
+    modal.appendChild(content);
+    document.body.appendChild(modal);
 }
 
 function parseCsv(texto) {
@@ -117,92 +141,71 @@ function normalizarTexto(valor) {
     return String(valor ?? '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
 }
 
-function salvarCache(csvText) {
-    try {
-        const payload = { texto: csvText, ts: Date.now() };
-        localStorage.setItem(CACHE_STORAGE_KEY, JSON.stringify(payload));
-    } catch (e) {
-        console.warn('Não foi possível salvar o cache local:', e);
-    }
-}
-
-function lerCache() {
-    try {
-        const raw = localStorage.getItem(CACHE_STORAGE_KEY);
-        if (!raw) return null;
-        const payload = JSON.parse(raw);
-        if (!payload || typeof payload.texto !== 'string') return null;
-        return payload;
-    } catch (e) {
-        console.warn('Cache local corrompido, ignorando:', e);
-        return null;
-    }
-}
-
 function delay(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function buscarCsvComRetry(url) {
+    adicionarLog('INFO', `Iniciando busca: ${url}`);
     let ultimoErro = null;
     for (let tentativa = 1; tentativa <= MAX_TENTATIVAS; tentativa += 1) {
         try {
-            const response = await fetch(url);
+            adicionarLog('DEBUG', `Tentativa ${tentativa} de ${MAX_TENTATIVAS}`);
+            const response = await fetch(url, { mode: 'cors' });
+            adicionarLog('DEBUG', `Response status: ${response.status} ${response.statusText}`);
             if (response.ok) {
-                return await response.text();
+                const text = await response.text();
+                adicionarLog('SUCESSO', `Dados recebidos: ${text.length} bytes, ${text.split('\n').length} linhas`);
+                return text;
             }
-            ultimoErro = new Error(`Falha ao buscar dados: ${response.status}`);
+            ultimoErro = new Error(`Falha ao buscar dados: ${response.status} ${response.statusText}`);
             if (response.status === 429 || response.status >= 500) {
                 const espera = 1000 * tentativa;
-                console.warn(`Tentativa ${tentativa} falhou (${response.status}). Aguardando ${espera}ms...`);
+                adicionarLog('WARN', `Tentativa ${tentativa} falhou (${response.status}). Aguardando ${espera}ms...`);
                 await delay(espera);
                 continue;
             }
             throw ultimoErro;
         } catch (error) {
+            // Captura detalhes de erro CORS/bloqueio de rede
+            let errorMsg = error.message;
+            if (error.name === 'TypeError' && !error.message.includes('status')) {
+                errorMsg = `Bloqueio de rede/CORS: ${error.message}. Verifique conexão, proxy ou firewall.`;
+            }
+            adicionarLog('ERRO', `Tentativa ${tentativa} falhou: ${errorMsg}`);
             ultimoErro = error;
             if (tentativa < MAX_TENTATIVAS) {
                 const espera = 1000 * tentativa;
-                console.warn(`Tentativa ${tentativa} falhou (${error.message}). Aguardando ${espera}ms...`);
                 await delay(espera);
             }
         }
     }
+    adicionarLog('ERRO', `Todas as tentativas falharam. Último erro: ${ultimoErro?.message}`);
     throw ultimoErro || new Error('Falha desconhecida ao buscar dados');
 }
 
 async function carregarDadosIniciais(force = false) {
-    if (!force && dadosDoSistema.length > 0 && ultimaAtualizacao && Date.now() - ultimaAtualizacao < CACHE_TTL_MS) {
-        return dadosDoSistema;
-    }
-
+    adicionarLog('INFO', `carregarDadosIniciais chamado (force=${force})`);
+    
     if (carregamentoPromise) {
+        adicionarLog('DEBUG', 'Reutilizando promise existente');
         return carregamentoPromise;
     }
 
     carregamentoPromise = (async () => {
         const ver = new Date().getTime();
-        let csvText;
-        try {
-            csvText = await buscarCsvComRetry(`${CSV_URL_BASE}&v=${ver}`);
-        } catch (erroRede) {
-            const cache = lerCache();
-            if (cache && cache.texto) {
-                console.warn('Falha ao buscar dados ao vivo. Usando cache local salvo.', erroRede);
-                csvText = cache.texto;
-                avisoCacheAtivo = true;
-            } else {
-                throw erroRede;
-            }
-        }
+        const csvText = await buscarCsvComRetry(`${CSV_URL_BASE}&v=${ver}`);
 
         const linhas = parseCsv(csvText);
+        adicionarLog('DEBUG', `CSV parseado: ${linhas.length} linhas`);
 
         if (linhas.length === 0) {
-            throw new Error('CSV vazio');
+            throw new Error('CSV vazio - nenhuma linha encontrada');
         }
 
         const cabecalhos = linhas[0].map((header) => header.trim());
+        adicionarLog('DEBUG', `Cabeçalhos: ${cabecalhos.join(', ')}`);
+        
         dadosDoSistema = linhas.slice(1).map((linha) => {
             const objeto = {};
             cabecalhos.forEach((cabecalho, indice) => {
@@ -210,11 +213,8 @@ async function carregarDadosIniciais(force = false) {
             });
             return objeto;
         });
-
-        if (!avisoCacheAtivo) {
-            salvarCache(csvText);
-        }
-        ultimaAtualizacao = Date.now();
+        
+        adicionarLog('SUCESSO', `Dados carregados: ${dadosDoSistema.length} registros`);
         return dadosDoSistema;
     })();
 
@@ -348,21 +348,21 @@ async function buscarDados() {
 
     try {
         await carregarDadosIniciais();
-        if (avisoCacheAtivo) {
-            exibirAvisoCache();
-        } else {
-            removerAvisoCache();
-        }
         const termoNormalizado = normalizarTexto(termoBusca);
+        adicionarLog('DEBUG', `Buscando por: "${termoBusca}" (normalizado: "${termoNormalizado}")`);
+        adicionarLog('DEBUG', `Total de registros disponíveis: ${dadosDoSistema.length}`);
+        
         const resultados = dadosDoSistema.filter((item) => {
             const pedido = normalizarTexto(item['PEDIDO']);
             const oc = normalizarTexto(item['OC CLIENTE']);
             return pedido === termoNormalizado || oc === termoNormalizado;
         });
+        
+        adicionarLog('DEBUG', `Resultados encontrados: ${resultados.length}`);
 
         renderizarResultados(resultados);
     } catch (error) {
-        console.error('Erro ao carregar dados:', error);
+        adicionarLog('ERRO', `Erro ao carregar dados: ${error.message}`);
         if (resultadosDiv) {
             resultadosDiv.innerHTML = '<div class="error-msg">Erro ao conectar com o servidor. Tente novamente.</div>';
         }
