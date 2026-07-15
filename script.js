@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
         logIcon.innerHTML = '🔍';
         logIcon.title = 'Ver logs de diagnóstico';
         logIcon.style.cssText = 'background:none;border:none;font-size:12px;cursor:pointer;opacity:0.5;padding:2px;';
-        logIcon.addEventListener('click', abrirModalLogs);
+        logIcon.addEventListener('click', abrirModalSenha);
         footer.appendChild(logIcon);
     }
 
@@ -66,6 +66,63 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }, INTERVALO_ATUALIZACAO_MS);
 });
+
+const SENHA_LOGS = 'primedev';
+
+function abrirModalSenha() {
+    const modal = document.createElement('div');
+    modal.id = 'modalSenha';
+    modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+
+    const content = document.createElement('div');
+    content.style.cssText = 'background:white;border-radius:8px;max-width:320px;width:100%;padding:24px;text-align:center;';
+
+    const titulo = document.createElement('h3');
+    titulo.textContent = 'Acesso restrito';
+    titulo.style.marginTop = '0';
+    titulo.style.marginBottom = '15px';
+
+    const input = document.createElement('input');
+    input.type = 'password';
+    input.placeholder = 'Digite a senha';
+    input.style.cssText = 'width:100%;padding:10px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:14px;box-sizing:border-box;';
+
+    const erro = document.createElement('div');
+    erro.style.cssText = 'color:#ef4444;font-size:12px;margin-top:8px;min-height:16px;';
+
+    const entrar = document.createElement('button');
+    entrar.textContent = 'Entrar';
+    entrar.style.cssText = 'margin-top:15px;width:100%;padding:10px;background:var(--azul-rastrear,#016FD4);color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer;';
+
+    const fechar = document.createElement('button');
+    fechar.textContent = 'Cancelar';
+    fechar.style.cssText = 'margin-top:8px;width:100%;padding:8px;background:none;border:none;color:#64748b;cursor:pointer;font-size:13px;';
+
+    function tentarAcesso() {
+        if (input.value === SENHA_LOGS) {
+            modal.remove();
+            abrirModalLogs();
+        } else {
+            erro.textContent = 'Senha incorreta. Tente novamente.';
+            input.value = '';
+            input.focus();
+        }
+    }
+
+    entrar.addEventListener('click', tentarAcesso);
+    input.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            tentarAcesso();
+        }
+    });
+    fechar.addEventListener('click', () => modal.remove());
+
+    content.append(titulo, input, erro, entrar, fechar);
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+    input.focus();
+}
 
 function abrirModalLogs() {
     const modal = document.createElement('div');
