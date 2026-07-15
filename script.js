@@ -364,7 +364,7 @@ function definirEstadoCarregamento(isLoading) {
     btn.textContent = isLoading ? 'Buscando...' : textoOriginal;
 }
 
-function renderizarResultados(resultados) {
+function renderizarResultados(resultados, termosSemResultado = []) {
     const resultadosDiv = document.getElementById('resultados');
     if (!resultadosDiv) {
         return;
@@ -372,24 +372,12 @@ function renderizarResultados(resultados) {
 
     resultadosDiv.innerHTML = '';
 
-    if (resultados.length === 0) {
+    if (resultados.length === 0 && termosSemResultado.length === 0) {
         const mensagem = document.createElement('div');
         mensagem.className = 'error-msg';
         mensagem.innerHTML = MSG_NAO_ENCONTRADO;
         resultadosDiv.appendChild(mensagem);
         return;
-    }
-
-    const selectTransp = document.getElementById('transportadora');
-    const transportePrincipal = resultados[0]['TRANSPORTADORA'] || '';
-
-    if (selectTransp) {
-        for (let index = 0; index < selectTransp.options.length; index += 1) {
-            if (selectTransp.options[index].text.toUpperCase().includes(transportePrincipal.toUpperCase())) {
-                selectTransp.selectedIndex = index;
-                break;
-            }
-        }
     }
 
     resultados.forEach((res, index) => {
@@ -471,6 +459,25 @@ function renderizarResultados(resultados) {
         card.append(linha1, linha2, linha3Transp, linha3Dest, linha3Envio, linha4, btnRastreio);
         resultadosDiv.appendChild(card);
     });
+
+    termosSemResultado.forEach((termo) => {
+        const card = document.createElement('div');
+        card.className = 'result-card nao-encontrado';
+
+        const linha1 = document.createElement('div');
+        linha1.className = 'line-1';
+        const registro = document.createElement('span');
+        registro.className = 'line-1-label';
+        registro.textContent = `Busca: ${termo}`;
+        linha1.append(registro);
+
+        const msg = document.createElement('div');
+        msg.className = 'nao-encontrado-msg';
+        msg.innerHTML = MSG_NAO_ENCONTRADO;
+
+        card.append(linha1, msg);
+        resultadosDiv.appendChild(card);
+    });
 }
 
 async function buscarDados() {
@@ -490,6 +497,9 @@ async function buscarDados() {
         btn.dataset.originalText = btn.textContent;
     }
 
+    // Divide a entrada em vários termos (espaço, vírgula ou ponto-e-vírgula)
+    const termos = termoBusca.split(/[\s,;]+/).map((t) => t.trim()).filter((t) => t.length > 0);
+
     definirEstadoCarregamento(true);
 
     try {
@@ -497,19 +507,31 @@ async function buscarDados() {
             await carregarConfigTransportadoras();
         }
         await carregarDadosIniciais();
-        const termoNormalizado = normalizarTexto(termoBusca);
-        adicionarLog('DEBUG', `Buscando por: "${termoBusca}" (normalizado: "${termoNormalizado}")`);
         adicionarLog('DEBUG', `Total de registros disponíveis: ${dadosDoSistema.length}`);
-        
-        const resultados = dadosDoSistema.filter((item) => {
-            const pedido = normalizarTexto(item['PEDIDO']);
-            const oc = normalizarTexto(item['OC CLIENTE']);
-            return pedido === termoNormalizado || oc === termoNormalizado;
-        });
-        
-        adicionarLog('DEBUG', `Resultados encontrados: ${resultados.length}`);
 
-        renderizarResultados(resultados);
+        const encontrados = [];
+        const termosSemResultado = [];
+
+        termos.forEach((termo) => {
+            const termoNormalizado = normalizarTexto(termo);
+            adicionarLog('DEBUG', `Buscando por: "${termo}" (normalizado: "${termoNormalizado}")`);
+
+            const resultados = dadosDoSistema.filter((item) => {
+                const pedido = normalizarTexto(item['PEDIDO']);
+                const oc = normalizarTexto(item['OC CLIENTE']);
+                return pedido === termoNormalizado || oc === termoNormalizado;
+            });
+
+            if (resultados.length > 0) {
+                encontrados.push(...resultados);
+            } else {
+                termosSemResultado.push(termo);
+            }
+        });
+
+        adicionarLog('DEBUG', `Total de envios encontrados: ${encontrados.length} | Termos sem resultado: ${termosSemResultado.length}`);
+
+        renderizarResultados(encontrados, termosSemResultado);
     } catch (error) {
         adicionarLog('ERRO', `Erro ao carregar dados: ${error.message}`);
         if (resultadosDiv) {
