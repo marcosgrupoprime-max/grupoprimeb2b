@@ -200,6 +200,9 @@ input[type="text"]::placeholder { color: #94a3b8; font-style: italic; font-size:
     background: #f59e0b;
 }
 
+.result-card.enviado { background: #fffefb; }
+.result-card.entregue { background: #fafdff; }
+.result-card.falha { background: #fefcfc; }
 .result-card.entregue::before { background: var(--azul-buscar); }
 .result-card.falha::before { background: #ef4444; }
 
