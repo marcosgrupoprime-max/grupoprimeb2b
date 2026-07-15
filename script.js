@@ -309,7 +309,8 @@ function renderizarResultados(resultados) {
         const chips = [
             ['NF', res['NOTA FISCAL']],
             ['Pedido', res['PEDIDO']],
-            ['OC', res['OC CLIENTE']]
+            ['OC', res['OC CLIENTE']],
+            ['Data de envio', res['DATA DE COLETA']]
         ];
 
         chips.forEach(([label, valor]) => {
