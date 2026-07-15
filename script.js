@@ -309,8 +309,7 @@ function renderizarResultados(resultados) {
         const chips = [
             ['NF', res['NOTA FISCAL']],
             ['Pedido', res['PEDIDO']],
-            ['OC', res['OC CLIENTE']],
-            ['Envio', res['DATA DE COLETA']]
+            ['OC', res['OC CLIENTE']]
         ];
 
         chips.forEach(([label, valor]) => {
@@ -328,11 +327,15 @@ function renderizarResultados(resultados) {
         linha3Dest.className = 'line-3-dest';
         linha3Dest.innerHTML = `Destino: <strong>${escapeHtml(res['CIDADE DESTINO'])}</strong>`;
 
+        const linha3Envio = document.createElement('div');
+        linha3Envio.className = 'line-3-envio';
+        linha3Envio.innerHTML = `Data de envio: <strong>${escapeHtml(res['DATA DE COLETA'])}</strong>`;
+
         const linha4 = document.createElement('div');
         linha4.className = 'line-4';
         linha4.innerHTML = `Dados de rastreio: <strong>${escapeHtml(codigo)}</strong>`;
 
-        card.append(linha1, divider, linha2, linha3Transp, linha3Dest, linha4);
+        card.append(linha1, divider, linha2, linha3Transp, linha3Dest, linha3Envio, linha4);
         resultadosDiv.appendChild(card);
     });
 }

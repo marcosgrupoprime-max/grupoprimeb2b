@@ -240,7 +240,7 @@ input[type="text"]::placeholder { color: #94a3b8; font-style: italic; font-size:
     margin-left: auto;
     font-weight: 600;
 }
-.line-3-transp, .line-3-dest { font-size: 13px; color: #475569; margin-bottom: 5px; text-align: left; }
+.line-3-transp, .line-3-dest, .line-3-envio { font-size: 13px; color: #475569; margin-bottom: 5px; text-align: left; }
 .line-4 { margin-top: 15px; background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0; text-align: center; display: block; font-size: 13px; }
 
 .support-wrapper, .tutorial-wrapper {
