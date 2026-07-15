@@ -14,7 +14,6 @@
 <body>
     <div class="main-layout">
         <div class="step-container">
-            <div class="step-label">PASSO 1</div>
             <div class="container main-card">
                 <div class="header-section">
                     <h1>Consultar dados do meu pedido</h1>
@@ -28,36 +27,6 @@
                 </div>
 
                 <div id="resultados" class="resultados" aria-live="polite"></div>
-            </div>
-        </div>
-
-        <div class="step-container">
-            <div class="step-label">PASSO 2</div>
-            <div class="container side-card">
-                <div class="header-section">
-                    <h1>Rastrear no site da Transportadora</h1>
-                </div>
-                <p class="step-instruction">O sistema seleciona a transportadora automaticamente conforme o seu pedido, mas você pode alterá-la se necessário.</p>
-
-                <div class="tracking-action-row">
-                    <label class="sr-only" for="transportadora">Transportadora</label>
-                    <select id="transportadora">
-                        <option value="https://rastreamento.correios.com.br/app/index.php">Correios</option>
-                        <option value="https://www.formatotransportes.com.br/">Formato Transportes</option>
-                        <option value="https://ssw.inf.br/2/rastreamento">Ideale Cargas (SSW)</option>
-                        <option value="https://ssw.inf.br/2/rastreamento">Mandala Transportes (SSW)</option>
-                        <option value="https://ssw.inf.br/2/rastreamento">MirindoSUL Transportes (SSW)</option>
-                        <option value="https://ssw.inf.br/2/rastreamento">Todo Brasil (SSW)</option>
-                        <option value="https://rapidofigueiredo.com.br/rastreamento/">Rápido Figueiredo</option>
-                        <option value="https://www.freteclick.com.br/rastreamento">Frete Click</option>
-                        <option value="https://rodonaves.com.br/rastreio-de-mercadoria?protocolo=&rastreiemercadoria=1&gad_campaignid=22199396591">Rodonaves</option>
-                        <option value="https://tracken.app.br/tracken/rastreio">J3 Flex (Motoboy)</option>
-                        <option value="https://apps.tadex.com.br/Publica/Rastreamento/Remetente">Tadex</option>
-                    </select>
-                    <button class="btn-secondary" id="btnRastreio" type="button">Rastreamento completo</button>
-                </div>
-
-                <div class="resultados" aria-live="polite"></div>
             </div>
         </div>
     </div>

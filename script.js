@@ -6,6 +6,58 @@ const INTERVALO_ATUALIZACAO_MS = 10 * 60 * 1000;
 
 const MSG_NAO_ENCONTRADO = 'Pedido em preparação. Assim que for despachado, você receberá automaticamente um e-mail com as informações de rastreamento. Caso seja necessário, solicite nosso suporte, abrindo um <a href="https://grupoprimeb2b.com.br/ticket/" target="_blank" rel="noopener noreferrer" class="ticket-link">ticket</a>.';
 
+// Configuração de transportadoras carregada de transportadoras.json
+let CONFIG_TRANSPORTADORAS = { categorias: {}, transportadoras: [] };
+
+function obterUrlTransportadora(nome, codigoRastreio) {
+    if (!nome) {
+        return '';
+    }
+    const chave = normalizarTexto(nome);
+    const transp = CONFIG_TRANSPORTADORAS.transportadoras.find((t) => normalizarTexto(t.nome) === chave);
+    if (!transp) {
+        return '';
+    }
+
+    const cat = CONFIG_TRANSPORTADORAS.categorias[transp.categoria];
+    if (!cat) {
+        return '';
+    }
+
+    switch (cat.tipo) {
+        case 'ssw': {
+            // Formato do campo: "Remetente: CNPJ - NF: NUMERO"
+            const cnpj = (codigoRastreio.match(/Remetente:\s*([\d./-]+)/) || [])[1] || '';
+            const nf = (codigoRastreio.match(/NF:\s*([\d./-]+)/) || [])[1] || '';
+            if (!cnpj || !nf) {
+                return '';
+            }
+            return cat.urlModelo.replace('{CNPJ}', cnpj).replace('{NF}', nf);
+        }
+        case 'freteclick':
+            return cat.url;
+        case 'formato': {
+            const cnpj = (codigoRastreio.match(/Remetente:\s*([\d./-]+)/) || [])[1] || '';
+            const nf = (codigoRastreio.match(/NF:\s*([\d./-]+)/) || [])[1] || '';
+            if (!cnpj || !nf) {
+                return '';
+            }
+            return cat.urlModelo.replace('{CNPJ}', cnpj).replace('{NF}', nf);
+        }
+        case 'correios': {
+            const rastreio = (codigoRastreio || '').trim();
+            if (!rastreio) {
+                return '';
+            }
+            return cat.urlModelo.replace('{RASTREIO}', encodeURIComponent(rastreio));
+        }
+        case 'siteproprio':
+            return transp.url || '';
+        default:
+            return '';
+    }
+}
+
 // Sistema de logs para diagnóstico
 const logs = [];
 function adicionarLog(tipo, mensagem) {
@@ -21,7 +73,6 @@ function obterLogs() {
 document.addEventListener('DOMContentLoaded', () => {
     const inputBusca = document.getElementById('numeroBusca');
     const btnBuscar = document.getElementById('btnBuscar');
-    const btnRastreio = document.getElementById('btnRastreio');
 
     // Ícone de logs no rodapé
     const footer = document.querySelector('.main-footer');
@@ -48,9 +99,9 @@ document.addEventListener('DOMContentLoaded', () => {
         btnBuscar.addEventListener('click', buscarDados);
     }
 
-    if (btnRastreio) {
-        btnRastreio.addEventListener('click', redirecionar);
-    }
+    carregarConfigTransportadoras().catch((error) => {
+        adicionarLog('ERRO', `Falha ao carregar transportadoras.json: ${error.message}`);
+    });
 
     carregarDadosIniciais().catch((error) => {
         adicionarLog('ERRO', `Falha ao sincronizar dados: ${error.message}`);
@@ -250,6 +301,17 @@ async function buscarCsvComRetry(url) {
     throw ultimoErro || new Error('Falha desconhecida ao buscar dados');
 }
 
+async function carregarConfigTransportadoras() {
+    adicionarLog('INFO', 'Carregando transportadoras.json');
+    const response = await fetch('transportadoras.json', { cache: 'no-store' });
+    if (!response.ok) {
+        throw new Error(`Status ${response.status}`);
+    }
+    CONFIG_TRANSPORTADORAS = await response.json();
+    adicionarLog('SUCESSO', `Config de transportadoras carregada: ${CONFIG_TRANSPORTADORAS.transportadoras.length} transportadoras`);
+    return CONFIG_TRANSPORTADORAS;
+}
+
 async function carregarDadosIniciais(force = false) {
     adicionarLog('INFO', `carregarDadosIniciais chamado (force=${force})`);
     
@@ -393,7 +455,20 @@ function renderizarResultados(resultados) {
         linha4.className = 'line-4';
         linha4.innerHTML = `<div class="line-4-label">Dados de rastreio</div><div class="line-4-value">${escapeHtml(codigo)}</div>`;
 
-        card.append(linha1, linha2, linha3Transp, linha3Dest, linha3Envio, linha4);
+        const btnRastreio = document.createElement('a');
+        btnRastreio.className = 'btn-track';
+        btnRastreio.innerHTML = `<i class="ti ti-external-link" aria-hidden="true"></i>Buscar no site da transportadora`;
+        const urlTransp = obterUrlTransportadora(res['TRANSPORTADORA'], codigo);
+        if (urlTransp) {
+            btnRastreio.href = urlTransp;
+            btnRastreio.target = '_blank';
+            btnRastreio.rel = 'noopener noreferrer';
+        } else {
+            btnRastreio.classList.add('disabled');
+            btnRastreio.textContent = 'Rastreio indisponível para esta transportadora';
+        }
+
+        card.append(linha1, linha2, linha3Transp, linha3Dest, linha3Envio, linha4, btnRastreio);
         resultadosDiv.appendChild(card);
     });
 }
@@ -418,6 +493,9 @@ async function buscarDados() {
     definirEstadoCarregamento(true);
 
     try {
+        if (!CONFIG_TRANSPORTADORAS.transportadoras.length) {
+            await carregarConfigTransportadoras();
+        }
         await carregarDadosIniciais();
         const termoNormalizado = normalizarTexto(termoBusca);
         adicionarLog('DEBUG', `Buscando por: "${termoBusca}" (normalizado: "${termoNormalizado}")`);
@@ -443,10 +521,5 @@ async function buscarDados() {
 }
 
 function redirecionar() {
-    const selectTransportadora = document.getElementById('transportadora');
-    if (!selectTransportadora) {
-        return;
-    }
-
-    window.open(selectTransportadora.value, '_blank', 'noopener,noreferrer');
+    // Função mantida apenas como fallback; o rastreio agora é feito por card.
 }

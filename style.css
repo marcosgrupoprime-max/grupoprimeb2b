@@ -32,9 +32,8 @@ body {
 
 .main-layout {
     display: flex;
-    gap: 50px;
     width: 100%;
-    max-width: 1150px;
+    max-width: 720px;
     align-items: stretch;
     justify-content: center;
 }
@@ -297,6 +296,31 @@ input[type="text"]::placeholder { color: #94a3b8; font-style: italic; font-size:
     word-break: break-all;
 }
 
+.btn-track {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 14px;
+    padding: 11px 16px;
+    background: var(--azul-rastrear);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+.btn-track:hover { opacity: 0.9; }
+.btn-track i { font-size: 16px; }
+.btn-track.disabled {
+    background: #e2e8f0;
+    color: #94a3b8;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
 .support-wrapper, .tutorial-wrapper {
     text-align: center;
     padding-top: 10px;
@@ -328,18 +352,13 @@ input[type="text"]::placeholder { color: #94a3b8; font-style: italic; font-size:
 .main-footer img { max-width: 130px; }
 
 @media (max-width: 900px) {
-    .main-layout {
-        flex-direction: column;
-        gap: 25px;
-        align-items: stretch;
-    }
     .container {
         padding: 20px 18px;
     }
-    .tracking-action-row, .search-box {
+    .search-box {
         flex-direction: column;
     }
-    .btn-primary, .btn-secondary {
+    .btn-primary {
         width: 100%;
         height: 46px;
     }
