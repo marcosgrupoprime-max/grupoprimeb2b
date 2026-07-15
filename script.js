@@ -335,14 +335,17 @@ function renderizarResultados(resultados) {
         const dataEntrega = res['DATA ENTREGA'] || '';
         let statusTexto = 'Pedido enviado';
         let statusClasse = 'enviado';
+        let statusIcone = 'ti-truck-delivery';
 
         if (dataEntrega) {
             if (dataEntrega.toUpperCase() === 'SEM SUCESSO') {
                 statusTexto = 'Falha na entrega';
                 statusClasse = 'falha';
+                statusIcone = 'ti-alert-triangle';
             } else {
                 statusTexto = `Entregue em ${dataEntrega}`;
                 statusClasse = 'entregue';
+                statusIcone = 'ti-circle-check';
             }
         }
 
@@ -352,14 +355,12 @@ function renderizarResultados(resultados) {
         const linha1 = document.createElement('div');
         linha1.className = 'line-1';
         const registro = document.createElement('span');
-        registro.textContent = `REGISTRO DE ENVIO #${index + 1}`;
+        registro.className = 'line-1-label';
+        registro.textContent = `Registro de envio #${index + 1}`;
         const chipStatus = document.createElement('span');
         chipStatus.className = 'status-chip';
-        chipStatus.textContent = statusTexto;
+        chipStatus.innerHTML = `<i class="ti ${statusIcone}" aria-hidden="true"></i><span>${escapeHtml(statusTexto)}</span>`;
         linha1.append(registro, chipStatus);
-
-        const divider = document.createElement('div');
-        divider.className = 'divider';
 
         const linha2 = document.createElement('div');
         linha2.className = 'line-2';
@@ -370,29 +371,29 @@ function renderizarResultados(resultados) {
         ];
 
         chips.forEach(([label, valor]) => {
-            const chip = document.createElement('span');
+            const chip = document.createElement('div');
             chip.className = 'data-chip';
-            chip.innerHTML = `${label}: <strong>${escapeHtml(valor)}</strong>`;
+            chip.innerHTML = `<span class="data-chip-label">${label}</span><span class="data-chip-value">${escapeHtml(valor)}</span>`;
             linha2.appendChild(chip);
         });
 
         const linha3Transp = document.createElement('div');
         linha3Transp.className = 'line-3-transp';
-        linha3Transp.innerHTML = `Transportadora: <strong>${escapeHtml(res['TRANSPORTADORA'])}</strong>`;
+        linha3Transp.innerHTML = `<i class="ti ti-truck" aria-hidden="true"></i>Transportadora: <strong>${escapeHtml(res['TRANSPORTADORA'])}</strong>`;
 
         const linha3Dest = document.createElement('div');
         linha3Dest.className = 'line-3-dest';
-        linha3Dest.innerHTML = `Destino: <strong>${escapeHtml(res['CIDADE DESTINO'])}</strong>`;
+        linha3Dest.innerHTML = `<i class="ti ti-map-pin" aria-hidden="true"></i>Destino: <strong>${escapeHtml(res['CIDADE DESTINO'])}</strong>`;
 
         const linha3Envio = document.createElement('div');
         linha3Envio.className = 'line-3-envio';
-        linha3Envio.innerHTML = `Data de envio: <strong>${escapeHtml(res['DATA DE COLETA'])}</strong>`;
+        linha3Envio.innerHTML = `<i class="ti ti-calendar" aria-hidden="true"></i>Data de envio: <strong>${escapeHtml(res['DATA DE COLETA'])}</strong>`;
 
         const linha4 = document.createElement('div');
         linha4.className = 'line-4';
-        linha4.innerHTML = `Dados de rastreio: <strong>${escapeHtml(codigo)}</strong>`;
+        linha4.innerHTML = `<div class="line-4-label">Dados de rastreio</div><div class="line-4-value">${escapeHtml(codigo)}</div>`;
 
-        card.append(linha1, divider, linha2, linha3Transp, linha3Dest, linha3Envio, linha4);
+        card.append(linha1, linha2, linha3Transp, linha3Dest, linha3Envio, linha4);
         resultadosDiv.appendChild(card);
     });
 }

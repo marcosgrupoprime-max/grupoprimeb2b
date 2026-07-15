@@ -181,67 +181,118 @@ input[type="text"]::placeholder { color: #94a3b8; font-style: italic; font-size:
 }
 
 .result-card {
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 15px;
+    position: relative;
     background: #fff;
+    border: 1px solid #eef1f5;
+    border-radius: 16px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 10px 24px rgba(15, 23, 42, 0.05);
+    padding: 22px 24px;
+    margin-bottom: 20px;
+    overflow: hidden;
     transition: all 0.2s;
 }
 
-.result-card.entregue {
-    background-color: #f0f9ff;
-    border-left: 4px solid var(--azul-buscar);
+.result-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 4px;
+    background: #f59e0b;
 }
 
-.result-card.enviado {
-    background-color: #fffbeb;
-    border-left: 4px solid #f59e0b;
-}
-
-.result-card.falha {
-    background-color: #fef2f2;
-    border-left: 4px solid #ef4444;
-}
+.result-card.entregue::before { background: var(--azul-buscar); }
+.result-card.falha::before { background: #ef4444; }
 
 .line-1 {
-    font-weight: 800;
-    color: var(--azul-rastrear);
-    font-size: 11px;
-    margin-bottom: 10px;
-    opacity: 0.8;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 16px;
 }
-.divider { height: 1px; background: #f1f5f9; margin-bottom: 15px; }
 
-.line-2 { display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: nowrap; overflow-x: auto; }
-.data-chip {
-    background: #f1f5f9;
-    padding: 4px 10px;
-    border-radius: 6px;
+.line-1-label {
     font-size: 11px;
-    border: 1px solid #e2e8f0;
-    color: var(--text-main);
-}
-.data-chip strong {
-    color: var(--text-main);
-    font-weight: 700;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    text-transform: uppercase;
 }
 
 .status-chip {
-    background: #f1f5f9;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 11px;
-    border: 1px solid #e2e8f0;
-    color: var(--text-main);
-    margin-left: auto;
-    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 11px;
+    border-radius: 20px;
+    background: #fffbeb;
+    color: #92400e;
+    white-space: nowrap;
 }
-.line-3-transp, .line-3-dest, .line-3-envio { font-size: 13px; color: #475569; margin-bottom: 5px; text-align: left; }
-.line-4 { margin-top: 15px; background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0; text-align: center; display: block; font-size: 13px; }
+.status-chip i { font-size: 14px; }
+
+.result-card.entregue .status-chip { background: #e6f6fe; color: #015a92; }
+.result-card.falha .status-chip { background: #fef2f2; color: #991b1b; }
+
+.line-2 {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #f1f5f9;
+}
+.data-chip { display: flex; flex-direction: column; gap: 3px; }
+.data-chip-label {
+    font-size: 10px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.data-chip-value {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.line-3-transp, .line-3-dest, .line-3-envio {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #475569;
+    margin-bottom: 9px;
+    text-align: left;
+}
+.line-3-transp:last-child, .line-3-dest:last-child, .line-3-envio:last-child { margin-bottom: 0; }
+.line-3-transp i, .line-3-dest i, .line-3-envio i { font-size: 15px; color: #94a3b8; flex-shrink: 0; }
+.line-3-transp strong, .line-3-dest strong, .line-3-envio strong { color: var(--text-main); font-weight: 600; }
+
+.line-4 {
+    margin-top: 16px;
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 10px;
+    padding: 12px 14px;
+    text-align: left;
+    display: block;
+}
+.line-4-label {
+    font-size: 10px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 3px;
+}
+.line-4-value {
+    font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text-main);
+    word-break: break-all;
+}
 
 .support-wrapper, .tutorial-wrapper {
     text-align: center;
