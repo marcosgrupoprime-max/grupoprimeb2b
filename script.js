@@ -1,4 +1,4 @@
-const CSV_URL_BASE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTcHCtfERtEop0Wzam17J0jOJLPPAon4bht0B55jnVcSBzid1c6eJoePUC2AAHcTOuVn8bujSfGaLic/pub?gid=972326270&single=true&output=csv';
+const CSV_URL_BASE = '/api/dados';
 let dadosDoSistema = [];
 let carregamentoPromise = null;
 const MAX_TENTATIVAS = 3;
@@ -265,7 +265,7 @@ async function carregarDadosIniciais(force = false) {
 
     carregamentoPromise = (async () => {
         const ver = new Date().getTime();
-        const csvText = await buscarCsvComRetry(`${CSV_URL_BASE}&v=${ver}`);
+        const csvText = await buscarCsvComRetry(`${CSV_URL_BASE}?v=${ver}`);
 
         const linhas = parseCsv(csvText);
         adicionarLog('DEBUG', `CSV parseado: ${linhas.length} linhas`);
